@@ -6,8 +6,8 @@ from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
 from django_countries.fields import CountryField
-
 from djecommerce.settings.base import BASE_DIR
+from localflavor.us.models import USPostalCodeField, USZipCodeField
 
 LABEL_CHOICES = (
     ('P', 'primary'),
@@ -84,6 +84,7 @@ class Item(models.Model):
     color = models.CharField(choices=COLOR_CHOICES, max_length=5)
     sku = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
+    price_id = models.CharField(max_length=200)
     condition = models.CharField(choices=CONDITION_CHOSICES, max_length=11, default='NEW')
     description1 = models.CharField(max_length=254, blank=True, null=True)
     description2 = models.CharField(max_length=254, blank=True, null=True)
@@ -279,7 +280,7 @@ class Order(models.Model):
             total += order_item.get_final_price()
         if self.coupon:
             total -= self.coupon.amount
-        return total
+        return round(total,2)
 
 
 class Address(models.Model):
@@ -287,8 +288,9 @@ class Address(models.Model):
                              on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100)
     apartment_address = models.CharField(max_length=100)
-    country = CountryField(multiple=False)
-    zip = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    state = USPostalCodeField()
+    zip = USZipCodeField()
     address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
     default = models.BooleanField(default=False)
 
@@ -312,6 +314,7 @@ class Payment(models.Model):
 
 class Coupon(models.Model):
     code = models.CharField(max_length=15)
+    coupon_id = models.CharField(max_length=20)
     amount = models.FloatField()
 
     def __str__(self):

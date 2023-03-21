@@ -8,6 +8,7 @@ STRIPE_PUBLIC_KEY = 'pk_test_51MjNu7ApoV55x5o7WyiWhNYJmEEe3DMGwhSSw4fdMNwFaB0yxV
 STRIPE_SECRET_KEY = 'sk_test_51MjNu7ApoV55x5o7EpY6TsPj82xk842nIEIQrQTktqxwUPBjdDQ0A30cRGJhsoAgIhE5T5QRvLGEQ6rKqB8vTlnO00IZcVruAy'
 
 INSTALLED_APPS = [
+    'localflavor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     'home',
     'core',
     'mailer',
+
 ]
 
 MIDDLEWARE = [

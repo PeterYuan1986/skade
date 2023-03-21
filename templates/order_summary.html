@@ -4,24 +4,25 @@
 <main>
     <div class="container">
 
-        <div class="table-responsive">
+        <div class="table-responsive ">
             <h2>Order Summary</h2>
             <table class="table">
                 <thead>
                 <tr>
-                    <th class="col" scope="col">#</th>
-                    <th scope="col"></th>
-                    <th scope="col">Item title</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Total Item Price</th>
+                    <th>#</th>
+                    <th></th>
+                    <th>Item title</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Item Price</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for order_item in object.items.all %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td><img src="{{ order_item.item.image.url }}" height="150"></td>
+                    <td><img src="{{ order_item.item.image.url }}" width="150"></td>
                     <td><a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a></td>
                     <td>{{ order_item.item.price }}</td>
                     <td>
@@ -45,27 +46,27 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan='5'>Your cart is empty</td>
+                    <td colspan='6'>Your cart is empty</td>
                 </tr>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <a class='btn btn-primary float-right' href='/shop'>Continue shopping</a>
                     </td>
                 </tr>
                 {% endfor %}
                 {% if object.coupon %}
                 <tr>
-                    <td colspan="4"><b>Coupon</b></td>
+                    <td colspan="5"><b>Coupon</b></td>
                     <td><b>-${{ object.coupon.amount }}</b></td>
                 </tr>
                 {% endif %}
                 {% if object.get_total %}
                 <tr>
-                    <td colspan="4"><b>Order Total</b></td>
+                    <td colspan="5"><b>Order Total</b></td>
                     <td><b>${{ object.get_total }}</b></td>
                 </tr>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <a class='btn btn-warning float-right ml-2' href='/checkout/'>Proceed to checkout</a>
                         <a class='btn btn-primary float-right' href='/shop'>Continue shopping</a>
                     </td>
