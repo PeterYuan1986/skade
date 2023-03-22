@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% load crispy_forms_tags %}
+{% load static %}
 <main>
     <!-- Modal -->
     <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog"
@@ -62,7 +63,10 @@
         {% if new_contact %}
         <div class="alert alert-success" role="alert">
             <a> {{ new_contact }}</a>
+
         </div>
+        <div class="text-center"><img class="img-fluid" src="{% static 'assets/img/thankyou-2.jpg ' %}" alt=""></div>
+
         {% else %}
         <div class="row py-5">
             <form enctype="multipart/form-data" method="post" style="margin-top: 1.3em;">

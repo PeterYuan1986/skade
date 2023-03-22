@@ -92,7 +92,7 @@ class Item(models.Model):
     description4 = models.CharField(max_length=254, blank=True, null=True)
     description5 = models.CharField(max_length=254, blank=True, null=True)
     information = models.TextField(blank=True, null=True)
-    brand = models.TextField(max_length=10,null=True,blank=True)
+    brand = models.TextField(max_length=10, null=True, blank=True)
     image = models.ImageField(default='no_img.jpg')
     img1 = models.ImageField(default='no_img.jpg')
     img2 = models.ImageField(default='no_img.jpg')
@@ -245,8 +245,9 @@ class Order(models.Model):
     ref_code = models.CharField(max_length=20, blank=True, null=True)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
-    ordered_date = models.DateTimeField()
+    ordered_date = models.DateTimeField(blank=True, null=True)
     ordered = models.BooleanField(default=False)
+    checkout_session = models.CharField(max_length=100, blank=True, null=True)
     shipping_address = models.ForeignKey(
         'Address', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
     billing_address = models.ForeignKey(
@@ -259,6 +260,9 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-ordered_date']
 
     '''
     1. Item added to cart
@@ -280,12 +284,14 @@ class Order(models.Model):
             total += order_item.get_final_price()
         if self.coupon:
             total -= self.coupon.amount
-        return round(total,2)
+        return round(total, 2)
 
 
 class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
     street_address = models.CharField(max_length=100)
     apartment_address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)

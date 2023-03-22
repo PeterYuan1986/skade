@@ -100,6 +100,10 @@ class CheckoutView(View):
                         return redirect('core:checkout')
                 else:
                     print("User is entering a new shipping address")
+                    shipping_first_name = form.cleaned_data.get(
+                        'shipping_first_name')
+                    shipping_last_name = form.cleaned_data.get(
+                        'shipping_last_name')
                     shipping_address1 = form.cleaned_data.get(
                         'shipping_address')
                     shipping_address2 = form.cleaned_data.get(
@@ -111,16 +115,18 @@ class CheckoutView(View):
                     shipping_zip = form.cleaned_data.get('shipping_zip')
 
                     if is_valid_form(
-                            [shipping_address1, shipping_address2, shipping_city, shipping_state, shipping_zip]):
-                        shipping_address = Address(
-                            user=self.request.user,
-                            street_address=shipping_address1,
-                            apartment_address=shipping_address2,
-                            city=shipping_city,
-                            state=shipping_state,
-                            zip=shipping_zip,
-                            address_type='S'
-                        )
+                            [shipping_first_name, shipping_last_name, shipping_address1, shipping_city, shipping_state,
+                             shipping_zip]):
+                        shipping_address = Address(user=self.request.user,
+                                                   first_name=shipping_first_name,
+                                                   last_name=shipping_last_name,
+                                                   street_address=shipping_address1,
+                                                   apartment_address=shipping_address2,
+                                                   city=shipping_city,
+                                                   state=shipping_state,
+                                                   zip=shipping_zip,
+                                                   address_type='S')
+                        print(shipping_address)
                         shipping_address.save()
 
                         order.shipping_address = shipping_address
@@ -144,6 +150,7 @@ class CheckoutView(View):
                     else:
                         messages.info(
                             self.request, "Please fill in the required shipping address fields")
+                        return redirect('core:checkout')
 
                 use_default_billing = form.cleaned_data.get(
                     'use_default_billing')
@@ -155,6 +162,7 @@ class CheckoutView(View):
                     billing_address.pk = None
                     billing_address.save()
                     billing_address.address_type = 'B'
+                    billing_address.default = False
                     billing_address.save()
                     order.billing_address = billing_address
                     order.save()
@@ -176,6 +184,10 @@ class CheckoutView(View):
                         return redirect('core:checkout')
                 else:
                     print("User is entering a new billing address")
+                    billing_first_name = form.cleaned_data.get(
+                        'billing_first_name')
+                    billing_last_name = form.cleaned_data.get(
+                        'billing_last_name')
                     billing_address1 = form.cleaned_data.get(
                         'billing_address')
                     billing_address2 = form.cleaned_data.get(
@@ -186,16 +198,19 @@ class CheckoutView(View):
                         'billing_state')
                     billing_zip = form.cleaned_data.get('billing_zip')
 
-                    if is_valid_form([billing_address1, billing_city, billing_state, billing_zip]):
-                        billing_address = Address(
-                            user=self.request.user,
-                            street_address=billing_address1,
-                            apartment_address=billing_address2,
-                            city=billing_city,
-                            state=billing_state,
-                            zip=billing_zip,
-                            address_type='B'
-                        )
+                    if is_valid_form(
+                            [billing_first_name, billing_last_name, billing_address1, billing_city, billing_state,
+                             billing_zip]):
+                        billing_address = Address(user=self.request.user,
+                                                  first_name=billing_first_name,
+                                                  last_name=billing_last_name,
+                                                  street_address=billing_address1,
+                                                  apartment_address=billing_address2,
+                                                  city=billing_city,
+                                                  state=billing_state,
+                                                  zip=billing_zip,
+                                                  address_type='B'
+                                                  )
                         billing_address.save()
 
                         order.billing_address = billing_address
@@ -231,8 +246,9 @@ class CheckoutView(View):
                         mode='payment',
                         discounts=discounts,
                         success_url=self.request.build_absolute_uri(
-                            reverse('core:thanks')) + '?session_id={CHECKOUT_SESSION_ID}',
-                        cancel_url=self.request.build_absolute_uri(reverse('core:shop')),
+                            reverse('core:order-success')) + '?session_id={CHECKOUT_SESSION_ID}',
+                        cancel_url=self.request.build_absolute_uri(reverse('core:order-summary')),
+                        customer_creation="if_required"
                     )
                 else:
                     session = stripe.checkout.Session.create(
@@ -240,9 +256,14 @@ class CheckoutView(View):
                         line_items=line_items,
                         mode='payment',
                         success_url=self.request.build_absolute_uri(
-                            reverse('core:thanks')) + '?session_id={CHECKOUT_SESSION_ID}',
-                        cancel_url=self.request.build_absolute_uri(reverse('core:shop')),
+                            reverse('core:order-success')) + '?session_id={CHECKOUT_SESSION_ID}',
+                        cancel_url=self.request.build_absolute_uri(reverse('core:order-summary')),
+                        customer_creation="if_required"
                     )
+                if order.checkout_session:
+                    stripe.checkout.Session.expire(order.checkout_session, )
+                order.checkout_session = session['id']
+                order.save()
 
                 return redirect(session.url)
 
@@ -261,8 +282,36 @@ class CheckoutView(View):
             return redirect("core:order-summary")
 
 
-def thanks(request):
-    return render(request, 'thanks.html')
+def order_success(request):
+    try:
+        session_id = request.GET.get('session_id')
+        session = stripe.checkout.Session.retrieve(session_id)
+        if session['payment_status'] == 'paid':
+            # customer = stripe.Customer.retrieve(session.customer)
+            try:
+                order_qs = Order.objects.get(user=request.user, ordered=False)
+                order_qs.ordered = True
+                ordered_date = timezone.now()
+                order_qs.ordered_date = ordered_date
+                order_qs.save()
+                return render(request, 'order_success.html', {'object': order_qs, 'ordernumber':session_id[-13:]})
+            except ObjectDoesNotExist:
+                messages.warning(request, "Your order page is expired, please check your order in order history page.")
+                return redirect("core:order-history")
+        else:
+            messages.warning(request, "You do not have an active order")
+            return redirect("core:order-summary")
+    except:
+        messages.warning(request, "Your order page is expired, please check your order in order history page.")
+        return redirect("core:order-history")
+
+def order_failed(request):
+    return render(request, 'order_failed.html')
+
+class OrderHistoryView(View):
+    def get(self, *args, **kwargs):
+        obeject = Order.objects.filter(user=self.request.user, ordered=True)
+        return render(self.request, 'order_history.html', {'objects': obeject})
 
 
 @csrf_exempt
@@ -577,9 +626,7 @@ def add_to_cart(request, slug):
                 messages.info(request, "This item was added to your cart.")
                 # return redirect("core:order-summary")
         else:
-            ordered_date = timezone.now()
-            order = Order.objects.create(
-                user=request.user, ordered_date=ordered_date)
+            order = Order.objects.create(user=request.user)
             order_item.quantity = int(amount)
             order_item.save()
             order.items.add(order_item)
@@ -612,9 +659,7 @@ def add_to_cart(request, slug):
                 messages.info(request, "This item was added to your cart.")
                 # return redirect("core:order-summary")
         else:
-            ordered_date = timezone.now()
-            order = Order.objects.create(
-                user=request.user, ordered_date=ordered_date)
+            order = Order.objects.create(user=request.user)
             order_item.quantity = int(amount)
             order_item.save()
             order.items.add(order_item)
@@ -641,9 +686,7 @@ def add_to_cart(request, slug):
                 messages.info(request, "This item was added to your cart.")
                 # return redirect("core:order-summary")
         else:
-            ordered_date = timezone.now()
-            order = Order.objects.create(
-                user=request.user, ordered_date=ordered_date)
+            order = Order.objects.create(user=request.user)
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart.")
             # return redirect("core:order-summary")
@@ -672,9 +715,7 @@ def buy_now(request, slug):
             messages.info(request, "This item was added to your cart.")
             return redirect("core:order-summary")
     else:
-        ordered_date = timezone.now()
-        order = Order.objects.create(
-            user=request.user, ordered_date=ordered_date)
+        order = Order.objects.create(user=request.user)
         order.items.add(order_item)
         messages.info(request, "This item was added to your cart.")
         return redirect("core:order-summary")

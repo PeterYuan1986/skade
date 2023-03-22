@@ -15,6 +15,8 @@ class SearchForm(forms.Form):
 
 
 class CheckoutForm(forms.Form):
+    shipping_first_name = forms.CharField(required=False)
+    shipping_last_name = forms.CharField(required=False)
     shipping_address = forms.CharField(required=False)
     shipping_address2 = forms.CharField(required=False)
     shipping_city = forms.CharField(required=False)
@@ -23,7 +25,8 @@ class CheckoutForm(forms.Form):
         'class': 'custom-select d-block w-100',
     }))
     shipping_zip = USZipCodeField(required=False)
-
+    billing_first_name = forms.CharField(required=False)
+    billing_last_name = forms.CharField(required=False)
     billing_address = forms.CharField(required=False)
     billing_address2 = forms.CharField(required=False)
     billing_city = forms.CharField(required=False)

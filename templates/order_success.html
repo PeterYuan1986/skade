@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<main>
+    <div style="font-size:11pt;font-family:Arial,sans-serif;width:50vw;min-width:300px;margin-left:auto;margin-right:auto">
+        <div>
+            <div class="text-center">
+                <img class="img-fluid" src="{% static 'assets/img/thankyou-2.jpg ' %}" alt="">
+                <h4>Review your order information below.</h4>
+            </div>
+
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Order#: {{ ordernumber }}</th>
+                    <th>Item title</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Item Price</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order_item in object.items.all %}
+                <tr>
+                    <td><img src="{{ order_item.item.image.url }}" width="100"></td>
+                    <td><a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a></td>
+                    <td>{{ order_item.item.price }}</td>
+                    <td>
+                        {{ order_item.quantity }}
+                    </td>
+                    <td>
+                        {% if order_item.item.discount_price %}
+                        ${{ order_item.get_total_discount_item_price }}
+                        <span class="badge badge-primary">Saving ${{ order_item.get_amount_saved }}</span>
+                        {% else %}
+                        ${{ order_item.get_total_item_price }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if object.coupon %}
+                <tr>
+                    <td colspan="5"><b>Coupon</b></td>
+                    <td><b>-${{ object.coupon.amount }}</b></td>
+                </tr>
+                {% endif %}
+                {% if object.get_total %}
+                <tr>
+                    <td colspan="5"><b>Order Total</b></td>
+                    <td><b>${{ object.get_total }}</b></td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <a class='btn btn-warning float-right ml-2' href='/'>Go Home</a>
+                        <a class='btn btn-primary float-right' href='/shop'>Check your order history</a>
+                    </td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+
+            <table style="text-align:center;width:100%;padding:1em">
+
+                <tbody>
+                <tr>
+                    <td> Tracking information will be available once your order ships. Please check it in your order
+                        history page. A order confirmation email will be sent to your shortly.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+            <table id="m_-8893706221798607176m_5616655165975383701socials"
+                   style="text-align:center;width:50%;margin-left:auto;margin-right:auto">
+
+                <tbody>
+                <tr style="text-align:center">
+                    <td colspan="5"><img class="" height="100"
+                                         src="{% static 'assets/img/d344f01d127e8202547a7174f91cd8c-977x1024.png' %}"
+                                         alt=""></td>
+                </tr>
+                <tr style="text-align:center">
+                    <td colspan="5"><p>Connect with us</p></td>
+                </tr>
+
+                <tr>
+
+
+                    <td width="20%"><a href="https://www.instagram.com/gojekindonesia/" rel="noreferrer" target="_blank"
+                                       data-saferedirecturl="https://www.google.com/url?q=https://www.instagram.com/gojekindonesia/&amp;source=gmail&amp;ust=1657781922077000&amp;usg=AOvVaw0F-TFNUUu730ysz4h7p9oO"><img
+                            src="https://ci4.googleusercontent.com/proxy/eHt5B6GvLK7XBLubPebDDyEgBl7G3bDTh-AmKLufvKUfmMba6diNuZnZiCJy0O_sJbHznWOpi188PMAIUA9FRy-SER-jBOmVbzMNhrv3s60IaXYUi0cOnpcQS3UIS8bljbg4BYasP8suXSvHb2oNDA6mL5WI0Fkxo3RQxLt6nX8KvWM6a62wyNRVmjgbTA=s0-d-e1-ft#https://i.gojekapi.com/darkroom/customer-platform/v2/images/b53053cb-9908-4ccc-868a-1c243dfc2ae5_order-receipt-Group-19.png"
+                            height="28" width="28" class="CToWUd"></a></td>
+
+
+                    <td width="20%"><a href="https://twitter.com/gojekindonesia" rel="noreferrer" target="_blank"
+                                       data-saferedirecturl="https://www.google.com/url?q=https://twitter.com/gojekindonesia&amp;source=gmail&amp;ust=1657781922077000&amp;usg=AOvVaw1qOUJ3UisSjicPDWADDTIO"><img
+                            src="https://ci6.googleusercontent.com/proxy/0obpLy89r3f40__rWmOK5STR-6yGOKMu5uX57eXPmkhF6R5evu7M8VwrLsVWQmVeAHxxHNnUblcUlv0bjbDd_oln6mehWM4hTo9wDtqld0OUCi_3BX3Q3Xd59O_g3f0oyT-TmNOisYZVCdNqLkbpXiOKWVAzHZLozN9ZOZR8JTdLB_Kt5PoZuQret4qZIQ=s0-d-e1-ft#https://i.gojekapi.com/darkroom/customer-platform/v2/images/4d8397a5-9bea-4603-b128-42d762db09b9_order-receipt-Group-16.png"
+                            height="28" width="28" class="CToWUd"></a></td>
+
+
+                    <td width="20%"><a href="https://www.facebook.com/gojekindonesia" rel="noreferrer" target="_blank"
+                                       data-saferedirecturl="https://www.google.com/url?q=https://www.facebook.com/gojekindonesia&amp;source=gmail&amp;ust=1657781922077000&amp;usg=AOvVaw28kk8Gyo80bVk-TZHO2HqL"><img
+                            src="https://ci5.googleusercontent.com/proxy/VbeXtVSdsvyWVqOhzaFpqESDzjhdmQokWoLqV13n0CODr6JgpPK4HxwAUYAzquLbdwndocIe5BayDwDiF1_5lINRAzr_ZhfkhTcFm3athOYOd7yEZjAU1ESnqYnh0QOZfFGoxdgPhRilIo0OlDiFHHEAJ_K_V0v4cRyhsFhLiaAEmMA4lBjvkDMJbxGC5Q=s0-d-e1-ft#https://i.gojekapi.com/darkroom/customer-platform/v2/images/13880da3-3a6f-495d-8458-db42d3ad48d2_order-receipt-Group-18.png"
+                            height="28" width="28" class="CToWUd"></a></td>
+
+
+                    <td width="20%"><a href="https://www.youtube.com/channel/UCmlKSK0OKn_B3oPwElW4n5w" rel="noreferrer"
+                                       target="_blank"
+                                       data-saferedirecturl="https://www.google.com/url?q=https://www.youtube.com/channel/UCmlKSK0OKn_B3oPwElW4n5w&amp;source=gmail&amp;ust=1657781922077000&amp;usg=AOvVaw3IYlEJJI6vJ30DleUfULKK"><img
+                            src="https://ci6.googleusercontent.com/proxy/hluP4Q8kYwgH3hCGQpqghR_I6Wavf4s2Q76Mmz4pl9Le4n67AqsXqSHkpG9JRpFmUkEBbHejF3Rm8I2z6nmHiLYO5sByIrxgF5XfO2LB1UNzOQckJbGNSHZC4JpDL5HkN-nz0XaH2ZWXFiPbntIQLqD6GdYr3X_v0OHPsQkzuWLK0bper0ZiuuirwgId8w=s0-d-e1-ft#https://i.gojekapi.com/darkroom/customer-platform/v2/images/5a83275f-753f-47a1-85ca-a876ec3c03c2_order-receipt-Group-20.png"
+                            height="28" width="28" class="CToWUd"></a></td>
+
+
+                    <td width="20%"><a href="https://www.linkedin.com/company/gojek/" rel="noreferrer" target="_blank"
+                                       data-saferedirecturl="https://www.google.com/url?q=https://www.linkedin.com/company/gojek/&amp;source=gmail&amp;ust=1657781922077000&amp;usg=AOvVaw3X5rS8Cfbp3s23td8vkUAj"><img
+                            src="https://ci3.googleusercontent.com/proxy/nKbeGF2NriYmKym15D4CvJmYZ08zSbDZR4dJPnp4KAuknYqkZzG9uIyG60miEvbJs_XbhtKCNHMX416cAUxyaVifmlKIHJZjzE8Us20G3RP9G1905DUYeA91V0xvZSMCTRTivd14g_iRSB45sOf20ygAxJGogdu0A5K4NzqbsEmvYzGqJgWANaJ3pXgkQw=s0-d-e1-ft#https://i.gojekapi.com/darkroom/customer-platform/v2/images/26ee71cc-1573-42c0-a024-798351532928_order-receipt-Group-21.png"
+                            height="28" width="28" class="CToWUd"></a></td>
+
+
+                </tr>
+                <tr style="text-align:center">
+                    <td colspan="5"><p></p></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock content %}

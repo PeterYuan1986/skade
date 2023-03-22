@@ -20,7 +20,9 @@ class OrderAdmin(admin.ModelAdmin):
                     'shipping_address',
                     'billing_address',
                     'payment',
-                    'coupon'
+                    'coupon',
+                    'checkout_session',
+                    'ordered_date',
                     ]
     list_display_links = [
         'user',
