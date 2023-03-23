@@ -35,7 +35,7 @@
 
         <a class="navbar-brand text-success logo h1 align-self-center" href="/">
             <span style="color: #c1a45e"><strong> SKADE</strong>   
-            <span style="color: black"><h5><STRONG>All For Hearing. Hearing For All</STRONG></h5></span>
+            <span style="color: black"><h6><STRONG>All For Hearing. Hearing For All</STRONG></h6></span>
         </a>
 
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
@@ -65,48 +65,75 @@
                     </li>
                 </ul>
             </div>
-            <div class="navbar align-self-center d-flex">
-
+            <div class="navbar align-self-end d-flex">
 
                 <div class="d-lg-none flex-sm-fill mt-3 mb-4 col-7 col-sm-auto pr-3">
                     <div class="input-group">
                         <form action="/shop/All/" method="post">
                             {% csrf_token %}
-                            <input type="text" name="search" class="form-control" id="inputMobileSearch" placeholder="Search ..."  style="width:150px;display:inline;">
+                            <input type="text" name="search" class="form-control" id="inputMobileSearch"
+                                   placeholder="Search ..." style="width:200px;display:inline;">
                             <!--<div class="input-group-text">-->
-                                <button type="submit" style="display:inline">
-                                    <i class="fa fa-fw fa-search"></i>
-                                </button>
+                            <button type="submit" style="display:inline">
+                                <i class="fa fa-fw fa-search"></i>
+                            </button>
                             <!--</div>-->
                         </form>
                     </div>
                 </div>
+
+
                 <a class="nav-icon d-none d-lg-inline" href="#" data-bs-toggle="modal"
                    data-bs-target="#templatemo_search">
                     <i class="fa fa-fw fa-search text-dark mr-2" style="font-size:28px"></i>
                 </a>
 
-                {% if request.user.is_authenticated %}
                 <a class="nav-icon position-relative text-decoration-none"
                    href="{% url 'core:order-summary' %}">
                     <i class="fa fa-fw fa-cart-arrow-down text-dark mr-1" style="font-size:28px"></i>
                     <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark ">{{ request.user|cart_item_count }}</span>
                 </a>
-                <a class="nav-icon position-relative text-decoration-none "
-                   href="{% url 'account_logout' %}">
-                    <i class="fa fa-fw fa-user text-dark mr-3" style="font-size:28px"></i>
-                    <span class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark ">Logout</span>
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-fw fa-user-circle text-dark mr-2" style="font-size:32px"></i>
                 </a>
-                {% else %}
-                <a class="nav-icon position-relative text-decoration-none" href="{% url 'account_login' %}">
-                    <i class="fa fa-fw fa-user text-dark mr-1" style="font-size:28px"></i>
-                    <span class="position-absolute top-0  left-100 translate-middle badge rounded-pill bg-light text-dark">Login</span>
-                </a>
-                <a class="nav-icon position-relative text-decoration-none" href="{% url 'account_signup' %}">
-                    <i class="fa fa-fw fa-user text-dark mr-3" style="font-size:28px"></i>
-                    <span class="position-absolute top-0  left-100 translate-middle badge rounded-pill bg-light text-dark ">Signup</span>
-                </a>
-                {% endif %}
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                     aria-labelledby="userDropdown">
+                    {% if request.user.is_authenticated %}
+                        <a class="dropdown-item" href="/order-history">
+                            <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Order History
+                        </a>
+                        <a class="dropdown-item" href="{% url 'account_reset_password' %}">
+                            <i class="fas fa-receipt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Reset Password
+                        </a>
+                        <a class="dropdown-item" href="{% url 'account_email' %}">
+                            <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                            E-mails Management
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'account_logout' %}" data-toggle="modal" data-target="#logoutModal">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Logout
+                        </a>
+                    {% else %}
+                        <a class="dropdown-item" href="{% url 'account_login' %}">
+                            <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Sign In
+                        </a>
+
+                        <a class="dropdown-item" href="{% url 'account_signup' %}">
+                            <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Sign Up
+                        </a>
+                    {% endif %}
+
+
+                </div>
+
+
             </div>
         </div>
 

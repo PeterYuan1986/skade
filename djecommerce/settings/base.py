@@ -8,7 +8,6 @@ STRIPE_PUBLIC_KEY = 'pk_test_51MjNu7ApoV55x5o7WyiWhNYJmEEe3DMGwhSSw4fdMNwFaB0yxV
 STRIPE_SECRET_KEY = 'sk_test_51MjNu7ApoV55x5o7EpY6TsPj82xk842nIEIQrQTktqxwUPBjdDQ0A30cRGJhsoAgIhE5T5QRvLGEQ6rKqB8vTlnO00IZcVruAy'
 
 INSTALLED_APPS = [
-    'localflavor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -24,6 +23,7 @@ INSTALLED_APPS = [
     'home',
     'core',
     'mailer',
+    'localflavor',
 
 ]
 
@@ -71,12 +71,18 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_in_env')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_root')
 
-# Auth
-
-AUTHENTICATION_BACKENDS = (
+# allauth 基本设定
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # 设置用户名和邮箱登录
+ACCOUNT_EMAIL_REQUIRED = True  # 注册需要填写邮箱
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
+ACCOUNT_REDIRECT_URL = '/accounts/profile/'  # 登录跳转页面
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
-)
+]
+
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 

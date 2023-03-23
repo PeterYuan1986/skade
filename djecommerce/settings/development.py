@@ -43,11 +43,12 @@ DATABASES = {
     }
 }
 
-EMAIL_BACKEND = "mailer.backend.DbBackend"
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = "mailer.backend.DbBackend"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.exmail.qq.com'
 EMAIL_USE_SSL = True
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 'noreply@skade.us'
 EMAIL_HOST_PASSWORD = 'mi54sVUde5MWgirs'
+EMAIL_FROM= 'SKADE Hearing<noreply@skade.us>'
 DEFAULT_FROM_EMAIL = 'noreply@skade.us'

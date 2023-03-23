@@ -2,6 +2,8 @@
 {% load static %}
 {% block content %}
 <main>
+<section class="bg-light py-5">
+    <div class="container">
     <div style="font-size:11pt;font-family:Arial,sans-serif;width:50vw;min-width:300px;margin-left:auto;margin-right:auto">
         <div>
             <div class="text-center">
@@ -54,7 +56,7 @@
                 <tr>
                     <td colspan="6">
                         <a class='btn btn-warning float-right ml-2' href='/'>Go Home</a>
-                        <a class='btn btn-primary float-right' href='/shop'>Check your order history</a>
+                        <a class='btn btn-primary float-right' href='/order-history'>Check your order history</a>
                     </td>
                 </tr>
                 {% endif %}
@@ -130,5 +132,7 @@
             </table>
         </div>
     </div>
+    </div>
+</section>
 </main>
 {% endblock content %}

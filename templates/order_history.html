@@ -1,72 +1,77 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main>
     <section class="bg-light py-5">
         <div class="container">
+            <h2>Order History</h2>
             <div class="row">
                 <!-- Blog Entries Column -->
                 <div class="col">
                     {% for object in objects %}
-                    <div class="card mb-4 text-nowrap">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>ORDER PLACED</th>
-                                <th>TOTAL</th>
-                                <th>SHIP TO</th>
-                                <th>TRACKING #</th>
-                                <th>ORDER #</th>
-                            </tr>
-                            <tr>
-                                <th><p>{{ object.ordered_date }}</p></th>
-                                <th><p>${{ object.get_total }}<p></th>
-                                <th><p>{{ object.shipping_address.first_name }} {{ object.shipping_address.last_name}}</p></th>
-                                <th><p>PENDING</p></th>
-                                <th><p>{{ object.checkout_session|slice:"-13:" }} </p></th>
-                            </tr>
+                        <div class="card mb-4 text-nowrap">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>ORDER PLACED</th>
+                                    <th>TOTAL</th>
+                                    <th>SHIP TO</th>
+                                    <th>TRACKING #</th>
+                                    <th>ORDER #</th>
+                                </tr>
+                                <tr>
+                                    <th><p>{{ object.ordered_date }}</p></th>
+                                    <th><p>${{ object.get_total }}<p></th>
+                                    <th>
+                                        <p>{{ object.shipping_address.first_name }} {{ object.shipping_address.last_name }}</p>
+                                    </th>
+                                    <th><p>PENDING</p></th>
+                                    <th><p>{{ object.checkout_session|slice:"-13:" }} </p></th>
+                                </tr>
 
-                            </thead>
-                            <tbody>
-                            {% for order_item in object.items.all %}
-                            <tr>
-                                <td>
-                                    <img src="{{ order_item.item.image.url }}" width="100">
-                                </td>
-                                <td><a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a>
-                                </td>
-                                <td>{{ order_item.item.price }}</td>
-                                <td>{{ order_item.quantity }}</td>
-                                <td>
-                                    <div class="col align-center">
-                                        <div class="pb-2">
-                                        </div>
-                                        <div class="pb-4">
-                                            <a href="/product/{{order_item.item.slug}}"
-                                               class="btn-success btn-lg px-3">Buy again
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <a href="/product/{{order_item.item.slug}}/#comments"
-                                               class=" btn-success btn-lg px-3">Write a review
-                                            </a>
-                                        </div>
+                                </thead>
+                                <tbody>
+                                {% for order_item in object.items.all %}
+                                    <tr>
+                                        <td>
+                                            <img src="{{ order_item.item.image.url }}" width="100">
+                                        </td>
+                                        <td>
+                                            <a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a>
+                                        </td>
+                                        <td>{{ order_item.item.price }}</td>
+                                        <td>{{ order_item.quantity }}</td>
+                                        <td>
+                                            <div class="col align-center">
+                                                <div class="pb-2">
+                                                </div>
+                                                <div class="pb-4">
+                                                    <a href="/product/{{ order_item.item.slug }}"
+                                                       class="btn-success btn-lg px-3">Buy again
+                                                    </a>
+                                                </div>
+                                                <div>
+                                                    <a href="/product/{{ order_item.item.slug }}/#comments"
+                                                       class=" btn-success btn-lg px-3">Write a review
+                                                    </a>
+                                                </div>
 
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% empty %}
+                        <p>You have not placed any orders.</p>
+                        <a href="/shop"
+                           class="btn-success btn-lg px-3">Go shopping
+                        </a>
                     {% endfor %}
                 </div>
-
             </div>
         </div>
     </section>
-</main>
-
 {% endblock content %}
 
 

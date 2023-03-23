@@ -40,7 +40,6 @@ def contact(request):
             new_contact.save()
 
             try:
-                os.system("echo 'test'")
                 message = f"From: {name}\n" \
                           f"Email: {email}\n" \
                           f"Message: \n" \
