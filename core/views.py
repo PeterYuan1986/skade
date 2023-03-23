@@ -291,6 +291,9 @@ def order_success(request):
             try:
                 order_qs = Order.objects.get(user=request.user, ordered=False)
                 order_qs.ordered = True
+                for item in order_qs.item.all():
+                    item.ordered_price = item.item.discount_price if item.item.discount_price else item.item.price
+                    item.save()
                 ordered_date = timezone.now()
                 order_qs.ordered_date = ordered_date
                 order_qs.save()
