@@ -30,8 +30,10 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-md-8 card mb-4  mt-3 ">
+        <div class="col-md-8 card mb-4  mt-3 " id="leavecomments">
             <div class="card-body">
+
+            {% if request.user.is_authenticated %}
                 {% if new_comment %}
                 <div class="alert alert-success" role="alert">
                     Your comment is awaiting moderation
@@ -44,8 +46,15 @@
                     <button type="submit" class="btn btn-primary  btn-lg">Submit</button>
                 </form>
                 {% endif %}
+
+                {% else %}
+                                <div class="alert alert-success" role="alert">
+                    <a href="{% url 'account_login' %}?next=/blog/{{ post.slug }}/%23leavecomments">Sign In</a> to leave a comment.
+                </div>
+            {% endif %}
             </div>
         </div>
+
     </div>
 
 </main>

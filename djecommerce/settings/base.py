@@ -77,7 +77,7 @@ ACCOUNT_EMAIL_REQUIRED = True  # 注册需要填写邮箱
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
-ACCOUNT_REDIRECT_URL = '/accounts/profile/'  # 登录跳转页面
+# ACCOUNT_REDIRECT_URL = '/accounts/profile/'  # 登录跳转页面
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
