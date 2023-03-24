@@ -5,7 +5,6 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
-from django_countries.fields import CountryField
 from djecommerce.settings.base import BASE_DIR
 from localflavor.us.models import USPostalCodeField, USZipCodeField
 
@@ -220,10 +219,11 @@ class OrderItem(models.Model):
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    ordered_price = models.FloatField(null=True,blank=True)
+    ordered_price=models.FloatField(blank=True, null=True)
+    tax = models.FloatField(default=0)
 
     def __str__(self):
-        return f"{self.quantity} of {self.item.title}"
+        return f"{self.quantity} of {self.item.slug}"
 
     def get_total_item_price(self):
         return self.quantity * self.item.price
@@ -235,14 +235,12 @@ class OrderItem(models.Model):
         return self.get_total_item_price() - self.get_total_discount_item_price()
 
     def get_final_price(self):
-        if self.item.discount_price:
-            return self.get_total_discount_item_price()
-        return self.get_total_item_price()
-    def get_final_ordered_price(self):
         if self.ordered_price:
-            return self.quantity * self.ordered_price
+            return self.ordered_price * self.quantity + self.tax
         else:
-            return  self.get_final_price()
+            if self.item.discount_price:
+                return self.get_total_discount_item_price()+ self.tax
+            return self.get_total_item_price()+ self.tax
 
 
 class Order(models.Model):
@@ -251,7 +249,7 @@ class Order(models.Model):
     ref_code = models.CharField(max_length=20, blank=True, null=True)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
-    ordered_date = models.DateTimeField(blank=True, null=True)
+    ordered_date = models.DateTimeField(auto_now_add=True)
     ordered = models.BooleanField(default=False)
     checkout_session = models.CharField(max_length=100, blank=True, null=True)
     shipping_address = models.ForeignKey(
@@ -266,6 +264,7 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
+
 
     class Meta:
         ordering = ['-ordered_date']
@@ -283,14 +282,31 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
+    def get_totaltax(self):
+        total = 0
+        for order_item in self.items.all():
+            total += order_item.tax *  order_item.quantity
+        return round(total, 2)
+
+    def get_subtotal(self):
+        total = 0
+        for order_item in self.items.all():
+            total += order_item.ordered_price*  order_item.quantity
+        if self.coupon:
+            total -= self.coupon.amount
+        return round(total, 2)
 
     def get_total(self):
         total = 0
         for order_item in self.items.all():
-            total += order_item.get_final_ordered_price()
+            total += order_item.get_final_price()
         if self.coupon:
             total -= self.coupon.amount
         return round(total, 2)
+
+    def admin_orderitems(self):
+        return ', '.join([str(a) for a in self.items.all()])
+    admin_orderitems.short_description = "OrderItems"
 
 
 class Address(models.Model):
@@ -314,7 +330,7 @@ class Address(models.Model):
 
 
 class Payment(models.Model):
-    stripe_charge_id = models.CharField(max_length=50)
+    stripe_charge_id = models.CharField(max_length=249)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET_NULL, blank=True, null=True)
     amount = models.FloatField()

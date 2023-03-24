@@ -8,24 +8,34 @@
                 <!-- Blog Entries Column -->
                 <div class="col">
                     {% for object in objects %}
-                        <div class="card mb-4 text-nowrap">
-                            <table class="table">
+                        <div class="card mb-4 ">
+                            <table class="table" >
                                 <thead>
-                                <tr>
-                                    <th>ORDER PLACED</th>
-                                    <th>TOTAL</th>
-                                    <th>SHIP TO</th>
-                                    <th>TRACKING #</th>
+                                <tr >
                                     <th>ORDER #</th>
+                                    <th>SHIP TO</th>
+                                    <th colspan="2">ORDER PLACED</th>
+                                    <th>TRACKING #</th>
                                 </tr>
                                 <tr>
-                                    <th><p>{{ object.ordered_date }}</p></th>
-                                    <th><p>${{ object.get_total }}<p></th>
-                                    <th>
-                                        <p>{{ object.shipping_address.first_name }} {{ object.shipping_address.last_name }}</p>
-                                    </th>
-                                    <th><p>PENDING</p></th>
                                     <th><p>{{ object.checkout_session|slice:"-13:" }} </p></th>
+                                    <th style="width: 45%">
+                                        <div>{{ object.shipping_address.first_name }} {{ object.shipping_address.last_name }}</div>
+                                        <div>
+                                            {{ object.shipping_address.street_address }}, {{ object.shipping_address.apartment_address }}</div>
+                                        <div> {{ object.shipping_address.city }}, {{ object.shipping_address.state }} {{ object.shipping_address.zip }}</div>
+                                    </th>
+                                    <th colspan="2"><p>{{ object.payment.timestamp }}</p></th>
+
+                                    <th><p>PENDING</p></th>
+
+                                </tr>
+                                <tr>
+                                    <th><strong>Item</strong></th>
+                                    <th><strong>Title</strong></th>
+                                    <th><strong>Price</strong></th>
+                                    <th><strong>Quantity</strong></th>
+                                    <th></th>
                                 </tr>
 
                                 </thead>
@@ -38,7 +48,7 @@
                                         <td>
                                             <a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a>
                                         </td>
-                                        <td>{{ order_item.item.ordered_price }}</td>
+                                        <td>${{ order_item.ordered_price }}</td>
                                         <td>{{ order_item.quantity }}</td>
                                         <td>
                                             <div class="col align-center">
@@ -59,6 +69,35 @@
                                         </td>
                                     </tr>
                                 {% endfor %}
+
+                                {% if object.coupon %}
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td>Coupon:</td>
+                                        <td>$-{{ object.coupon.amount }}</td>
+                                    </tr>
+
+
+                                {% endif %}
+
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td>Subtotal:</td>
+                                    <td>${{ object.get_subtotal }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td>Tax:</td>
+                                    <td>${{ object.get_totaltax }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td>Total:</td>
+                                    <td>${{ object.get_total }}</td>
+                                    <td></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>

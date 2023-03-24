@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import string
@@ -14,7 +15,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.utils import timezone
+from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, View
 from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm, SearchForm, CommentForm
@@ -291,13 +292,24 @@ def order_success(request):
             try:
                 order_qs = Order.objects.get(user=request.user, ordered=False)
                 order_qs.ordered = True
-                for item in order_qs.item.all():
-                    item.ordered_price = item.item.discount_price if item.item.discount_price else item.item.price
-                    item.save()
-                ordered_date = timezone.now()
-                order_qs.ordered_date = ordered_date
+                for order_items in order_qs.items.all():
+                    order_items.delete()
+                line_items = stripe.checkout.Session.list_line_items(session_id)['data']
+                for item in line_items:
+                    order_items = OrderItem.objects.create(user=request.user,
+                                                           ordered=True,
+                                                           item=Item.objects.get(price_id=item['price']["id"]),
+                                                           quantity=item['quantity'],
+                                                           ordered_price=item['price']["unit_amount"] / 100,
+                                                           tax=item['amount_tax'], )
+                    order_items.save()
+                    order_qs.items.add(order_items)
+                payment = Payment.objects.create(stripe_charge_id=session_id,
+                                                 user=request.user, amount=session['amount_total'])
+                payment.save()
+                order_qs.payment = payment
                 order_qs.save()
-                return render(request, 'order_success.html', {'object': order_qs, 'ordernumber':session_id[-13:]})
+                return render(request, 'order_success.html', {'object': order_qs, 'ordernumber': session_id[-13:]})
             except ObjectDoesNotExist:
                 messages.warning(request, "Your order page is expired, please check your order in order history page.")
                 return redirect("core:order-history")
@@ -308,8 +320,10 @@ def order_success(request):
         messages.warning(request, "Your order page is expired, please check your order in order history page.")
         return redirect("core:order-history")
 
+
 def order_failed(request):
     return render(request, 'order_failed.html')
+
 
 class OrderHistoryView(View):
     def get(self, *args, **kwargs):
@@ -611,7 +625,7 @@ def add_to_cart(request, slug):
         order_item, created = OrderItem.objects.get_or_create(
             item=item,
             user=request.user,
-            ordered=False
+            ordered=False,
         )
         order_qs = Order.objects.filter(user=request.user, ordered=False)
         if order_qs.exists():
@@ -627,14 +641,17 @@ def add_to_cart(request, slug):
                 order_item.save()
                 order.items.add(order_item)
                 messages.info(request, "This item was added to your cart.")
-                # return redirect("core:order-summary")
+            order.ordered_date = datetime.now()
+            # return redirect("core:order-summary")
         else:
-            order = Order.objects.create(user=request.user)
+            order = Order.objects.create(user=request.user,
+                                         ordered_date=datetime.now())
             order_item.quantity = int(amount)
             order_item.save()
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart.")
             # return redirect("core:order-summary")
+        order.save()
         return redirect(f"/#{slug}")
     elif request.method == 'GET':
         if request.GET.get('product-quanity'):
@@ -661,13 +678,16 @@ def add_to_cart(request, slug):
                 order.items.add(order_item)
                 messages.info(request, "This item was added to your cart.")
                 # return redirect("core:order-summary")
+            order.ordered_date = datetime.now()
         else:
-            order = Order.objects.create(user=request.user)
+            order = Order.objects.create(user=request.user,
+                                         ordered_date=datetime.now())
             order_item.quantity = int(amount)
             order_item.save()
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart.")
             # return redirect("core:order-summary")
+        order.save()
         return redirect(f"/product/{slug}")
     else:
         order_item, created = OrderItem.objects.get_or_create(
@@ -688,11 +708,13 @@ def add_to_cart(request, slug):
                 order.items.add(order_item)
                 messages.info(request, "This item was added to your cart.")
                 # return redirect("core:order-summary")
+            order.ordered_date = datetime.now()
         else:
-            order = Order.objects.create(user=request.user)
+            order = Order.objects.create(user=request.user, ordered_date=datetime.now())
             order.items.add(order_item)
             messages.info(request, "This item was added to your cart.")
             # return redirect("core:order-summary")
+        order.save()
         return redirect(f"/shop/#{slug}")
 
 
@@ -712,9 +734,13 @@ def buy_now(request, slug):
             order_item.quantity += 1
             order_item.save()
             messages.info(request, "This item quantity was updated.")
+            order.ordered_date=datetime.now()
+            order.save()
             return redirect("core:order-summary")
         else:
             order.items.add(order_item)
+            order.ordered_date=datetime.now()
+            order.save()
             messages.info(request, "This item was added to your cart.")
             return redirect("core:order-summary")
     else:
@@ -842,4 +868,3 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist.")
                 return redirect("core:request-refund")
-

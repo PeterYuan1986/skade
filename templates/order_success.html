@@ -19,8 +19,8 @@
                     <th>Item title</th>
                     <th>Price</th>
                     <th>Quantity</th>
+                    <th>Tax</th>
                     <th>Total Item Price</th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -28,9 +28,12 @@
                 <tr>
                     <td><img src="{{ order_item.item.image.url }}" width="100"></td>
                     <td><a href="{{ order_item.item.get_absolute_url }}">{{ order_item.item.title }}</a></td>
-                    <td>{{ order_item.item.price }}</td>
+                    <td>${{ order_item.ordered_price }}</td>
                     <td>
                         {{ order_item.quantity }}
+                    </td>
+                                    <td>
+                        ${{ order_item.tax }}
                     </td>
                     <td>
                         {% if order_item.item.discount_price %}
