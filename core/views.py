@@ -1,7 +1,6 @@
 import json
 import math
 import random
-import re
 import string
 
 import stripe
@@ -119,11 +118,6 @@ class CheckoutView(View):
                     if is_valid_form(
                             [shipping_first_name, shipping_last_name, shipping_address1, shipping_city, shipping_state,
                              shipping_zip]):
-                        pattern = '^[0-9]{5}(-[0-9]{4})?$'
-                        if not re.match(pattern,shipping_zip.strip()):
-                            messages.info(
-                                self.request, "Please fill in the shipping zip code in the format of XXXXX or XXXXX-XXXX")
-                            return redirect('core:checkout')
                         shipping_address = Address(user=self.request.user,
                                                    first_name=shipping_first_name,
                                                    last_name=shipping_last_name,
@@ -133,7 +127,6 @@ class CheckoutView(View):
                                                    state=shipping_state,
                                                    zip=shipping_zip,
                                                    address_type='S')
-                        print(shipping_address)
                         shipping_address.save()
 
                         order.shipping_address = shipping_address
@@ -208,11 +201,6 @@ class CheckoutView(View):
                     if is_valid_form(
                             [billing_first_name, billing_last_name, billing_address1, billing_city, billing_state,
                              billing_zip]):
-                        pattern = '^[0-9]{5}(-[0-9]{4})?$'
-                        if not re.match(pattern,shipping_zip.strip()):
-                            messages.info(
-                                self.request, "Please fill in the billing zip code in the format of XXXXX or XXXXX-XXXX")
-                            return redirect('core:checkout')
                         billing_address = Address(user=self.request.user,
                                                   first_name=billing_first_name,
                                                   last_name=billing_last_name,
@@ -289,6 +277,11 @@ class CheckoutView(View):
                 #     messages.warning(
                 #         self.request, "Invalid payment option selected")
                 #     return redirect('core:checkout')
+            else:
+                    messages.info(
+                        self.request,
+                        "Please fill in the zip code in the format of XXXXX or XXXXX-XXXX")
+                    return redirect('core:checkout')
         except ObjectDoesNotExist:
             messages.warning(self.request, "You do not have an active order")
             return redirect("core:order-summary")
