@@ -1,4 +1,4 @@
-from .models import Comment, Contact
+from .models import Comment, Contact,Warranty
 from django import forms
 from django.contrib.auth.decorators import login_required
 
@@ -15,3 +15,8 @@ class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = ('name', 'email', 'body', 'attachment')
+
+class WarrantyForm(forms.ModelForm):
+    class Meta:
+        model = Warranty
+        fields = ('name', 'email', 'order_number')

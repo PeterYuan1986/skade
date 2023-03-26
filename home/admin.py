@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import admin
-from .models import Post, Comment, Contact
+from .models import Post, Comment, Contact,Warranty
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -23,4 +23,8 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'body',"attachment_address", 'created_on')
+
+@admin.register(Warranty)
+class WarrantyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'order_number', 'created_on')
 

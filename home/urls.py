@@ -7,7 +7,10 @@ urlpatterns = [
     path('contact/', contact, name='contact'),
     path('about/', about, name='about'),
     path('policy/', policy, name='policy'),
+    path('warranty/', warranty, name='warranty'),
     path('blog/', PostList.as_view(), name='blog'),
     # path('blog/<slug:slug>', PostDetail.as_view(), name='post_detail'),
-    path('blog/<slug:slug>', post_detail, name='post_detail')
+    path('blog/<slug:slug>', post_detail, name='post_detail'),
+    path('findid/', find_id, name='find_id'),
+
 ]
