@@ -4,6 +4,7 @@ from datetime import datetime
 
 from core.models import Item, Category
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.views import generic
 
 from djecommerce.settings.base import BASE_DIR
@@ -19,16 +20,17 @@ def home(request):
     categorys = Category.objects.all()[:3]
     return render(request, 'home.html', {'items': items, "categorys": categorys})
 
-
+@login_required
 def contact(request):
     new_contact = None
     template_name = 'contact.html'
     if request.method == 'POST':
+        email = request.user.email
         contct_form = ContactForm(request.POST, request.FILES)
         if contct_form.is_valid():
             name = contct_form.cleaned_data.get('name')
             body = contct_form.cleaned_data.get('body')
-            email = contct_form.cleaned_data.get('email')
+            # email = contct_form.cleaned_data.get('email')
             attach = request.FILES.get('attachment', None)
             new_contact = contct_form.save(commit=False)
             if attach:
@@ -38,6 +40,7 @@ def contact(request):
                     for chunk in attach.chunks():
                         destination.write(chunk)
                 new_contact.attachment_address = os.path.join(save, save_name)
+            new_contact.email = email
             new_contact.save()
 
             try:
@@ -53,11 +56,12 @@ def contact(request):
                 send_mail('Skade Message Service Confirmation',
                           'This is a confirmation of your SKADE customer service message request, a representative will contact you by email in 24 hours. Please do not reply to this message!',
                           None, [email], fail_silently=False)
-                new_contact = 'Your Message is sent, a confirmation email has sent to your input email address shortly. We will contact you by email in 24 hours.'
+                new_contact = f'Your Message is sent, a confirmation email has sent to your primary email address ({email}) shortly. We will contact you by email in 24 hours.'
             except:
                 new_contact = 'Unable to send email. Please try again later or contact us by email at service@skade.us'
     else:
         contct_form = ContactForm()
+
     return render(request, template_name, {'new_contact': new_contact, 'contact_form': contct_form})
 
 

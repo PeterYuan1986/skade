@@ -14,7 +14,7 @@ class ContactForm(forms.ModelForm):
 
     class Meta:
         model = Contact
-        fields = ('name', 'email', 'body', 'attachment')
+        fields = ('name', 'body', 'attachment')
 
 class WarrantyForm(forms.ModelForm):
     class Meta:
