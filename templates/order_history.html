@@ -9,9 +9,9 @@
                 <div class="col">
                     {% for object in objects %}
                         <div class="card mb-4 ">
-                            <table class="table" >
+                            <table class="table">
                                 <thead>
-                                <tr >
+                                <tr>
                                     <th>ORDER #</th>
                                     <th>SHIP TO</th>
                                     <th colspan="2">ORDER PLACED</th>
@@ -27,7 +27,9 @@
                                     </th>
                                     <th colspan="2"><p>{{ object.payment.timestamp }}</p></th>
 
-                                    <th><p>PENDING</p></th>
+                                    <th><p><a
+                                            href="https://tools.usps.com/go/TrackConfirmAction.action?tLabels={{ object.tracking }}"> {{ object.tracking }} </a>
+                                    </p></th>
 
                                 </tr>
                                 <tr>

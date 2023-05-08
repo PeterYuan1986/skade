@@ -11,7 +11,7 @@ make_refund_accepted.short_description = 'Update orders to refund granted'
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['user',
+    list_display = ['id', 'user',
                     'admin_orderitems',
                     'ordered',
                     'being_delivered',
@@ -24,6 +24,7 @@ class OrderAdmin(admin.ModelAdmin):
                     'coupon',
                     'checkout_session',
                     'ordered_date',
+                    'full_address'
                     ]
     list_display_links = [
         'user',
@@ -45,7 +46,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = ['id',
         'user',
         'street_address',
         'apartment_address',
@@ -61,7 +62,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'body', 'stars', 'item', 'created_on', 'active')
+    list_display = ('id','name', 'body', 'stars', 'item', 'created_on', 'active')
     list_filter = ('active', 'created_on')
     search_fields = ('name', 'email', 'body')
     actions = ['approve_comments']

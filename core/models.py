@@ -219,7 +219,7 @@ class OrderItem(models.Model):
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    ordered_price=models.FloatField(blank=True, null=True)
+    ordered_price = models.FloatField(blank=True, null=True)
     tax = models.FloatField(default=0)
 
     def __str__(self):
@@ -239,8 +239,8 @@ class OrderItem(models.Model):
             return self.ordered_price * self.quantity + self.tax
         else:
             if self.item.discount_price:
-                return self.get_total_discount_item_price()+ self.tax
-            return self.get_total_item_price()+ self.tax
+                return self.get_total_discount_item_price() + self.tax
+            return self.get_total_item_price() + self.tax
 
 
 class Order(models.Model):
@@ -249,6 +249,7 @@ class Order(models.Model):
     ref_code = models.CharField(max_length=20, blank=True, null=True)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
+    tracking = models.CharField(max_length=20, default='PENDING')
     ordered_date = models.DateTimeField(auto_now_add=True)
     ordered = models.BooleanField(default=False)
     checkout_session = models.CharField(max_length=100, blank=True, null=True)
@@ -265,7 +266,6 @@ class Order(models.Model):
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
 
-
     class Meta:
         ordering = ['-ordered_date']
 
@@ -281,17 +281,18 @@ class Order(models.Model):
     '''
 
     def __str__(self):
-        return self.user.username
+        return self.id
+
     def get_totaltax(self):
         total = 0
         for order_item in self.items.all():
-            total += order_item.tax *  order_item.quantity
+            total += order_item.tax * order_item.quantity
         return round(total, 2)
 
     def get_subtotal(self):
         total = 0
         for order_item in self.items.all():
-            total += order_item.ordered_price*  order_item.quantity
+            total += order_item.ordered_price * order_item.quantity
         if self.coupon:
             total -= self.coupon.amount
         return round(total, 2)
@@ -304,8 +305,21 @@ class Order(models.Model):
             total -= self.coupon.amount
         return round(total, 2)
 
+    def full_address(self):
+        if self.shipping_address:
+            return self.shipping_address.first_name + " " + \
+                   self.shipping_address.last_name + " " + \
+                   self.shipping_address.street_address + " " + \
+                   self.shipping_address.apartment_address + " " + \
+                   self.shipping_address.city + " " + \
+                   self.shipping_address.state + " " + self.shipping_address.zip
+        else:
+            return None
+
     def admin_orderitems(self):
+
         return ', '.join([str(a) for a in self.items.all()])
+
     admin_orderitems.short_description = "OrderItems"
 
 
